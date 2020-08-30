@@ -1,0 +1,40 @@
+{
+    "$schema": "https://raw.githubusercontent.com/F5Networks/f5-appsvcs-extension/master/schema/latest/as3-schema-3.21.0-4.json",
+    "class": "AS3",
+    "declaration": {
+        "class": "ADC",
+        "schemaVersion": "3.21.0",
+        "id": "koene_test",
+        "koene_test": {
+            "class": "Tenant",
+            "app_test": {
+                "class": "Application",
+                "template": "http",
+                "serviceMain": {
+                    "class": "Service_HTTP",
+                    "virtualPort": 80,
+                    "virtualAddresses": [
+                        "1.1.1.1"
+                    ],
+                    "pool": "app_test_web_pool"
+                },
+                "app_test_web_pool": {
+                    "class": "Pool",
+                    "monitors": [
+                        "http"
+                    ],
+                    "members": [
+                        {
+                            "servicePort": 80,
+                            "serverAddresses": [
+                                "172.16.1.1",
+                                "172.16.1.2",
+                                "172.16.1.3"
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}
