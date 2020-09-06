@@ -12,7 +12,7 @@ session.verify = False
 """
 REST API Defaults
 """
-auth = ('admin','abcd1234')
+auth = ('saExchange','Abcd 1234')
 headers = {'Content-Type':'application/json'}
 
 class F5_microservice:
@@ -196,6 +196,15 @@ class F5_microservice:
                   "partition" : "' + partitie + '"}'
         response = self.post(url,auth,headers,payload)
         return response.status_code
+
+    def get_poolmembers(self, bigip_adres, partitie, pool_naam):
+        """
+        Functie om alle members van een pool op te halen
+        """
+        url = 'https://' + bigip_adres + '/mgmt/tm/ltm/pool/' + \
+        '~' + partitie + '~' + pool_naam + '/members'
+        response = self.get(url,auth,headers)
+        return json.loads(response.text)
 
     def create_vip(self, bigip_adres, partitie, naam, omschrijving,
                    ip_adres, port, protocol):
