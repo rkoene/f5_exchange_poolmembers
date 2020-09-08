@@ -7,7 +7,7 @@ import requests
 
 session = requests.Session()
 session.trust_env = False
-session.verify = False
+session.verify = 'U:\My Certificates\ca-bundle.crt'
 
 """
 REST API Defaults
@@ -205,6 +205,25 @@ class F5_microservice:
         '~' + partitie + '~' + pool_naam + '/members'
         response = self.get(url,auth,headers)
         return json.loads(response.text)
+
+    def set_poolmember_disabled_by_name(self, bigip_adres, partitie, pool, naam, disabled):
+        """
+        Functie om een poolmember uit te zetten zodat deze niet meedoet in de pool.
+        Invoer  : bigip_adres  = management adres van het F5 BIGIP device.
+                  partitie     = de administratieve partitie in de BIGIP.
+                  pool         = de naam van de pool.
+                  naam         = de naam van de poolmember.
+                  disabled     = Disable member (True) of enable member (False).
+        Uitvoer : HTTP status code in de response.
+        """
+        url = 'https://' + bigip_adres + '/mgmt/tm/ltm/pool/' + \
+              '~' + partitie + '~' + pool + '/members/' + naam
+        if disabled:
+            payload = '{ "session" : "user-disabled"}'
+        else:
+            payload = '{ "session" : "user-enabled"}'
+        response = self.patch(url,auth,headers,payload)
+        return response.status_code
 
     def create_vip(self, bigip_adres, partitie, naam, omschrijving,
                    ip_adres, port, protocol):

@@ -12,11 +12,11 @@ print ("\n")
 dcKeuze = "999"
 
 while dcKeuze not in ['A','O']:
-    dcKeuze = input("Wil je de nodes in het (O)DC bewerken, of die in (A)peldoorn?")
+    dcKeuze = str.upper(input("Wil je de nodes in het (O)DC bewerken, of die in (A)peldoorn? "))
 
 statusKeuze = "999"
 while statusKeuze not in ['A','U']:
-    statusKeuze = input("Wil je de nodes (A)an of (U)itzetten)?")
+    statusKeuze = str.upper(input("Wil je de nodes (A)an of (U)itzetten)? "))
 
 if dcKeuze == "A" :
     serverSubnet = apd
@@ -26,5 +26,10 @@ else :
 poolMembers = msF5.get_poolmembers("dev-adc01.koene.tld", "SSCICT~exch_test", "exch_test_pool")
 
 for member in poolMembers['items'] :
-    print (member['address'])
+    if str(member['address']).startswith(serverSubnet):
+        disabled = (statusKeuze == "U")
+        msF5.set_poolmember_disabled_by_name("dev-adc01.koene.tld","SSCICT~exch_test","exch_test_pool",member['name'],disabled)
 
+poolMembers = msF5.get_poolmembers("dev-adc01.koene.tld", "SSCICT~exch_test", "exch_test_pool")
+for member in poolMembers['items'] :
+    print (member['name'] + ' - ' + member['address'] + ' - ' + member['session'])
