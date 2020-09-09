@@ -1,47 +1,81 @@
+# Import F5 miscroservice
 import F5_ms
 
+def memberStatus():
+    # Init status dicts
+    odcStatus = {"Aan":0, "Uit":0}
+    apdStatus = {"Aan":0, "Uit":0}
+
+    # Uitvragen huidige status van de poolmembers
+    poolMembers = msF5.get_poolmembers("dev-adc01.koene.tld",
+                                       "SSCICT~exch_test",
+                                       "exch_test_pool")
+    for member in poolMembers['items'] :
+        if str(member['address']).startswith(dictSubnets["O"]):
+            if member['session'] == "monitor-enabled": odcStatus["Aan"] += 1
+            elif member['session'] == "user-disabled": odcStatus["Uit"] += 1
+        elif str(member['address']).startswith(dictSubnets["A"]):
+            if member['session'] == "monitor-enabled": apdStatus["Aan"] += 1
+            elif member['session'] == "user-disabled": apdStatus["Uit"] += 1
+    print ("Huidige status poolmembers:")
+    print ("+----------------------+")
+    print ("| ODC                  |")
+    print ("+-----------+----------+")
+    print (str("|  Aan : {:2d} | Uit : {:2d} |").format(odcStatus["Aan"],odcStatus["Uit"]))
+    print ("+-----------+----------+")
+    print ("| APD                  |")
+    print ("+-----------+----------+")
+    print (str("|  Aan : {:2d} | Uit : {:2d} |").format(apdStatus["Aan"],apdStatus["Uit"]))
+    print ("+-----------+----------+")
+
+# Aanmaken F5 microservice object
 msF5 = F5_ms.F5_microservice()
 
+# Vul datacenter subnets voor Exchange servers
 odc = "172.17.1."
 apd = "172.18.2."
-odcMember ={}
-apdMember ={}
+dictSubnets = {"O":odc, "A":apd}
 
+# Tonen doel van het script
+print ("\n")
+print ("\n")
 print ("Met deze tool kan je in 1 keer alle Exchange poolmembers in Rijswijk of Apeldoorn tegelijk enablen of disablen.")
 print ("Controleer vooraf de huidige status. Deze tool doet dat niet. Het is dus mogelijk om hiermee alle exchange servers te disablen.")
+print ("Menu keuze Q stopt het script.")
 print ("\n")
 
-poolMembers = msF5.get_poolmembers("dev-adc01.koene.tld",
-                                   "SSCICT~exch_test",
-                                   "exch_test_pool")
+memberStatus()
 
+# Menu voor het uitvragen van de keuze
 dcKeuze = ""
-while dcKeuze not in ['A','O']:
+while dcKeuze not in ['A','O','Q']:
     dcKeuze = str.upper(input("Wil je de nodes in het (O)DC bewerken, of die in (A)peldoorn? "))
+if dcKeuze == 'Q': exit(0)
 
 statusKeuze = ""
-while statusKeuze not in ['A','U']:
+while statusKeuze not in ['A','U','Q']:
     statusKeuze = str.upper(input("Wil je de nodes (A)an of (U)itzetten)? "))
+if statusKeuze =='Q': exit(0)
 
-if dcKeuze == "A" :
-    serverSubnet = apd
-else :
-    serverSubnet = odc
-
+# Aan/uit schakelen van de betreffende poolmembers
 poolMembers = msF5.get_poolmembers("dev-adc01.koene.tld",
                                    "SSCICT~exch_test",
                                    "exch_test_pool")
-
 for member in poolMembers['items'] :
-    if str(member['address']).startswith(serverSubnet):
+    if str(member['address']).startswith(dictSubnets[dcKeuze]):
         msF5.set_poolmember_disabled_by_name("dev-adc01.koene.tld",
                                              "SSCICT~exch_test",
                                              "exch_test_pool",
                                              member['name'],
                                              statusKeuze == "U")
 
-poolMembers = msF5.get_poolmembers("dev-adc01.koene.tld",
-                                   "SSCICT~exch_test",
-                                   "exch_test_pool")
-for member in poolMembers['items'] :
-    print (member['name'] + ' - ' + member['address'] + ' - ' + member['session'])
+# Uitvragen en tonen van de nieuwe status
+memberStatus()
+
+#poolMembers = msF5.get_poolmembers("dev-adc01.koene.tld",
+#                                   "SSCICT~exch_test",
+#                                   "exch_test_pool")
+#for member in poolMembers['items'] :
+#    print (member['name'] + ' - ' + member['address'] + ' - ' + member['session'])
+
+# Einde script
