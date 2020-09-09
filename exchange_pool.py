@@ -72,10 +72,4 @@ for member in poolMembers['items'] :
 # Uitvragen en tonen van de nieuwe status
 memberStatus()
 
-#poolMembers = msF5.get_poolmembers("dev-adc01.koene.tld",
-#                                   "SSCICT~exch_test",
-#                                   "exch_test_pool")
-#for member in poolMembers['items'] :
-#    print (member['name'] + ' - ' + member['address'] + ' - ' + member['session'])
-
 # Einde script
