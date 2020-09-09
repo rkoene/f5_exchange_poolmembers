@@ -3,8 +3,8 @@ import F5_ms
 
 def memberStatus():
     # Init status dicts
-    odcStatus = {"Aan":0, "Uit":0}
-    apdStatus = {"Aan":0, "Uit":0}
+    odcStatus = {"Aan":0, "Uit":0, "Up":0, "Down":0}
+    apdStatus = {"Aan":0, "Uit":0, "Up":0, "Down":0}
 
     # Uitvragen huidige status van de poolmembers
     poolMembers = msF5.get_poolmembers("dev-adc01.koene.tld",
@@ -12,21 +12,26 @@ def memberStatus():
                                        "exch_test_pool")
     for member in poolMembers['items'] :
         if str(member['address']).startswith(dictSubnets["O"]):
-            if member['session'] == "monitor-enabled": odcStatus["Aan"] += 1
-            elif member['session'] == "user-disabled": odcStatus["Uit"] += 1
+            if member['session'] == "user-disabled" : odcStatus["Uit"] += 1
+            else : odcStatus["Aan"] += 1
+            if member['state'] == "down": odcStatus["Down"] += 1
+            else : odcStatus["Up"] += 1
         elif str(member['address']).startswith(dictSubnets["A"]):
-            if member['session'] == "monitor-enabled": apdStatus["Aan"] += 1
-            elif member['session'] == "user-disabled": apdStatus["Uit"] += 1
+            if member['session'] == "user-disabled" : apdStatus["Uit"] += 1
+            else : apdStatus["Aan"] += 1
+            if member['state'] == "down": apdStatus["Down"] += 1
+            else : apdStatus["Up"] += 1
+
     print ("Huidige status poolmembers:")
-    print ("+----------------------+")
-    print ("| ODC                  |")
-    print ("+-----------+----------+")
-    print (str("|  Aan : {:2d} | Uit : {:2d} |").format(odcStatus["Aan"],odcStatus["Uit"]))
-    print ("+-----------+----------+")
-    print ("| APD                  |")
-    print ("+-----------+----------+")
-    print (str("|  Aan : {:2d} | Uit : {:2d} |").format(apdStatus["Aan"],apdStatus["Uit"]))
-    print ("+-----------+----------+")
+    print ("+--------------------------------------------+")
+    print ("| ODC                                        |")
+    print ("+-----------+----------+----------+----------+")
+    print (str("|  Aan : {:2d} | Uit : {:2d} | Up : {:2d} | Down : {:2d} |").format(odcStatus["Aan"],odcStatus["Uit"],odcStatus["Up"],odcStatus["Down"]))
+    print ("+-----------+----------+----------+----------+")
+    print ("| APD                                        |")
+    print ("+-----------+----------+----------+----------+")
+    print (str("|  Aan : {:2d} | Uit : {:2d} | Up : {:2d} | Down : {:2d} |").format(apdStatus["Aan"],apdStatus["Uit"],apdStatus["Up"],apdStatus["Down"]))
+    print ("+-----------+----------+----------+----------+")
 
 # Aanmaken F5 microservice object
 msF5 = F5_ms.F5_microservice()
