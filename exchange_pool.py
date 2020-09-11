@@ -10,17 +10,25 @@ def memberStatus():
     poolMembers = msF5.get_poolmembers("dev-adc01.koene.tld",
                                        "SSCICT~exch_test",
                                        "exch_test_pool")
-    for member in poolMembers['items'] :
+    for member in poolMembers['items']:
         if str(member['address']).startswith(dictSubnets["O"]):
-            if member['session'] == "user-disabled" : odcStatus["Uit"] += 1
-            else : odcStatus["Aan"] += 1
-            if member['state'] == "down": odcStatus["Down"] += 1
-            else : odcStatus["Up"] += 1
+            if member['session'] == "user-disabled":
+                odcStatus["Uit"] += 1
+            else:
+                odcStatus["Aan"] += 1
+            if member['state'] == "down":
+                odcStatus["Down"] += 1
+            else:
+                odcStatus["Up"] += 1
         elif str(member['address']).startswith(dictSubnets["A"]):
-            if member['session'] == "user-disabled" : apdStatus["Uit"] += 1
-            else : apdStatus["Aan"] += 1
-            if member['state'] == "down": apdStatus["Down"] += 1
-            else : apdStatus["Up"] += 1
+            if member['session'] == "user-disabled":
+                apdStatus["Uit"] += 1
+            else:
+                apdStatus["Aan"] += 1
+            if member['state'] == "down":
+                apdStatus["Down"] += 1
+            else:
+                apdStatus["Up"] += 1
 
     print ("Huidige status poolmembers:")
     print ("+--------------------------------------------+")
@@ -37,9 +45,7 @@ def memberStatus():
 msF5 = F5_ms.F5_microservice()
 
 # Vul datacenter subnets voor Exchange servers
-odc = "172.17.1."
-apd = "172.18.2."
-dictSubnets = {"O":odc, "A":apd}
+dictSubnets = {"O":"172.17.1.", "A":"172.18.2."}
 
 # Tonen doel van het script
 print ("\n")
