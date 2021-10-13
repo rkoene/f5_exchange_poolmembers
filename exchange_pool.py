@@ -57,6 +57,7 @@ print ("Controleer vooraf de huidige status, vooral de nodes. " + \
 print ("Menu keuze Q stopt het script.")
 print ("\n")
 
+# Uitvragen en tonen van de huidige status van de poolmembers
 memberStatus()
 
 # Menu voor het uitvragen van de keuze
